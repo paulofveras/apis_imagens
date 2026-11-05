@@ -33,11 +33,18 @@ class _TelaCaesState extends State<TelaCaes> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Galeria de cães')),
+    // Exercício 1: cor de fundo do Scaffold personalizada
+    backgroundColor: Colors.amber.shade50,
+    // Exercício 1: título da AppBar personalizado
+    appBar: AppBar(title: const Text('Meus Amigos de Quatro Patas')),
     body: Center(child: SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const Text('Toque para descobrir um cachorro!'),
+        const SizedBox(height: 16),
+        // Exercício 1: frase acima da imagem
+        const Text('Cada foto é uma surpresa fofa!',
+          style: TextStyle(fontStyle: FontStyle.italic)),
         const SizedBox(height: 16),
         if (carregando) const CircularProgressIndicator(),
         if (erro != null) Text(erro!),
@@ -47,7 +54,8 @@ class _TelaCaesState extends State<TelaCaes> {
             errorBuilder: (_, _, _) => const Text('Imagem indisponível'))),
         const SizedBox(height: 16),
         ElevatedButton(onPressed: carregando ? null : buscarCao,
-          child: const Text('Sortear cachorro')),
+          // Exercício 1: texto do botão alterado
+          child: const Text('Quero ver outro cão!')),
       ]),
     )),
   );
