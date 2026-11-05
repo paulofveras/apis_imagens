@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart'; // Exercício 10
 import '../modelos/personagem.dart';
 import 'tela_detalhe_personagem.dart';
 
@@ -26,11 +27,21 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
   String _filtro = '';
   // Exercício 9: página atual guardada no estado
   int _pagina = 1;
+  // Exercício 10: id do personagem favorito (null = nenhum)
+  int? _favoritoId;
 
   @override
   void initState() {
     super.initState();
+    _lerFavorito(); // Exercício 10: lê o favorito salvo ao abrir a tela
     _futuro = buscarPersonagens(); // pede os dados UMA vez, ao abrir a tela
+  }
+
+  // Exercício 10: lê o id salvo no aparelho (se não existir, volta null)
+  Future<void> _lerFavorito() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() { _favoritoId = prefs.getInt('favorito_id'); });
   }
 
   Future<PaginaPersonagens> buscarPersonagens() async {
@@ -123,10 +134,17 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
                     backgroundImage: NetworkImage(p.imagem)),
                   title: Text(p.nome),
                   subtitle: Text('${p.especie} · ${p.status}'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) =>
-                      TelaDetalhePersonagem(personagem: p))),
+                  // Exercício 10: estrela no personagem favorito
+                  trailing: p.id == _favoritoId
+                      ? const Icon(Icons.star, color: Colors.amber)
+                      : const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    // Exercício 10: espera voltar do detalhe e atualiza a estrela
+                    await Navigator.push(context,
+                      MaterialPageRoute(builder: (_) =>
+                        TelaDetalhePersonagem(personagem: p)));
+                    _lerFavorito();
+                  },
                 ),
               );
             },
