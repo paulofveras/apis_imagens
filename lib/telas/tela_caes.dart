@@ -13,6 +13,8 @@ class _TelaCaesState extends State<TelaCaes> {
   String? imagem;
   String? erro;
   bool carregando = false;
+  // Exercício 2: conta quantas fotos já foram sorteadas com sucesso
+  int totalFotos = 0;
 
   Future<void> buscarCao() async {
     setState(() { carregando = true; erro = null; });
@@ -22,7 +24,10 @@ class _TelaCaesState extends State<TelaCaes> {
       if (resposta.statusCode != 200) throw Exception('Falha na consulta');
       final dados = jsonDecode(resposta.body);
       if (!mounted) return;
-      setState(() { imagem = dados['message']; });
+      setState(() {
+        imagem = dados['message'];
+        totalFotos++; // Exercício 2: só soma quando a foto chegou com sucesso
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() { erro = 'Não foi possível carregar a foto.'; });
@@ -45,6 +50,9 @@ class _TelaCaesState extends State<TelaCaes> {
         // Exercício 1: frase acima da imagem
         const Text('Cada foto é uma surpresa fofa!',
           style: TextStyle(fontStyle: FontStyle.italic)),
+        const SizedBox(height: 16),
+        // Exercício 2: mostra o contador na tela
+        Text('Fotos sorteadas: $totalFotos'),
         const SizedBox(height: 16),
         if (carregando) const CircularProgressIndicator(),
         if (erro != null) Text(erro!),
