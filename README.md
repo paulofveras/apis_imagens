@@ -1,4 +1,4 @@
-# APIs Divertidas em Flutter
+# APIs em Flutter
 
 - **Aluno:** Paulo Fernando Mourão Veras Filho
 - **Disciplina:** Programação para Dispositivos Móveis I (PDM I) – UNITINS – 2026/2
