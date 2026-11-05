@@ -13,6 +13,8 @@ class TelaPersonagens extends StatefulWidget {
 
 class _TelaPersonagensState extends State<TelaPersonagens> {
   late Future<List<Personagem>> _futuro;
+  // Exercício 8: filtro de status ('' = todos, 'alive' = vivos, 'dead' = mortos)
+  String _filtro = '';
 
   @override
   void initState() {
@@ -21,8 +23,10 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
   }
 
   Future<List<Personagem>> buscarPersonagens() async {
-    final resposta = await http.get(
-      Uri.parse('https://rickandmortyapi.com/api/character?page=1'));
+    // Exercício 8: só acrescenta &status=... quando há um filtro escolhido
+    final parteStatus = _filtro.isEmpty ? '' : '&status=$_filtro';
+    final resposta = await http.get(Uri.parse(
+      'https://rickandmortyapi.com/api/character?page=1$parteStatus'));
     if (resposta.statusCode != 200) {
       throw Exception('Falha na consulta: ${resposta.statusCode}');
     }
@@ -37,11 +41,36 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
     setState(() { _futuro = buscarPersonagens(); });
   }
 
+  // Exercício 8: troca o filtro e busca de novo (o Future muda DENTRO do setState)
+  void _trocarFiltro(String novoFiltro) {
+    setState(() {
+      _filtro = novoFiltro;
+      _futuro = buscarPersonagens();
+    });
+  }
+
+  // Exercício 8: um ChoiceChip para cada opção do filtro
+  Widget _opcaoFiltro(String texto, String valor) => ChoiceChip(
+    label: Text(texto),
+    selected: _filtro == valor,
+    onSelected: (_) => _trocarFiltro(valor),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Personagens')),
-      body: FutureBuilder<List<Personagem>>(
+      body: Column(children: [
+        // Exercício 8: opções de filtro acima da lista
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Wrap(spacing: 8, children: [
+            _opcaoFiltro('Todos', ''),
+            _opcaoFiltro('Vivos', 'alive'),
+            _opcaoFiltro('Mortos', 'dead'),
+          ]),
+        ),
+        Expanded(child: FutureBuilder<List<Personagem>>(
         future: _futuro,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -78,7 +107,8 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
             },
           );
         },
-      ),
+      )),
+      ]),
     );
   }
 }
