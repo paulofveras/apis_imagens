@@ -7,5 +7,6 @@ void main() {
     await tester.pumpWidget(const MeuApp());
 
     expect(find.text('Galeria de cães'), findsOneWidget);
+    expect(find.text('Pokédex'), findsOneWidget);
   });
 }
