@@ -15,12 +15,18 @@ class _TelaCaesState extends State<TelaCaes> {
   bool carregando = false;
   // Exercício 2: conta quantas fotos já foram sorteadas com sucesso
   int totalFotos = 0;
+  // Exercício 3: raças disponíveis e a raça escolhida (null = qualquer uma)
+  final racas = ['hound', 'husky', 'pug', 'beagle'];
+  String? racaEscolhida;
 
   Future<void> buscarCao() async {
     setState(() { carregando = true; erro = null; });
     try {
-      final resposta = await http.get(
-        Uri.parse('https://dog.ceo/api/breeds/image/random'));
+      // Exercício 3: sem raça marcada usa o endpoint geral; com raça, o da raça
+      final endereco = racaEscolhida == null
+          ? 'https://dog.ceo/api/breeds/image/random'
+          : 'https://dog.ceo/api/breed/$racaEscolhida/images/random';
+      final resposta = await http.get(Uri.parse(endereco));
       if (resposta.statusCode != 200) throw Exception('Falha na consulta');
       final dados = jsonDecode(resposta.body);
       if (!mounted) return;
@@ -50,6 +56,18 @@ class _TelaCaesState extends State<TelaCaes> {
         // Exercício 1: frase acima da imagem
         const Text('Cada foto é uma surpresa fofa!',
           style: TextStyle(fontStyle: FontStyle.italic)),
+        const SizedBox(height: 16),
+        // Exercício 3: escolha da raça com ChoiceChip dentro de um Wrap
+        Wrap(
+          spacing: 8,
+          children: racas.map((raca) => ChoiceChip(
+            label: Text(raca),
+            selected: racaEscolhida == raca,
+            // tocar de novo na raça marcada desmarca (volta ao aleatório)
+            onSelected: (marcada) =>
+              setState(() { racaEscolhida = marcada ? raca : null; }),
+          )).toList(),
+        ),
         const SizedBox(height: 16),
         // Exercício 2: mostra o contador na tela
         Text('Fotos sorteadas: $totalFotos'),
