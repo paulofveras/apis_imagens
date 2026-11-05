@@ -4,6 +4,15 @@ import 'package:http/http.dart' as http;
 import '../modelos/personagem.dart';
 import 'tela_detalhe_personagem.dart';
 
+// Exercício 9: a API devolve a lista E o total de páginas (info.pages).
+// Escolhi uma classe pequena que guarda os dois juntos: assim o mesmo Future
+// entrega tudo o que a tela precisa, sem criar variáveis soltas no estado.
+class PaginaPersonagens {
+  final List<Personagem> lista;
+  final int totalPaginas;
+  PaginaPersonagens({required this.lista, required this.totalPaginas});
+}
+
 class TelaPersonagens extends StatefulWidget {
   const TelaPersonagens({super.key});
 
@@ -12,9 +21,11 @@ class TelaPersonagens extends StatefulWidget {
 }
 
 class _TelaPersonagensState extends State<TelaPersonagens> {
-  late Future<List<Personagem>> _futuro;
+  late Future<PaginaPersonagens> _futuro;
   // Exercício 8: filtro de status ('' = todos, 'alive' = vivos, 'dead' = mortos)
   String _filtro = '';
+  // Exercício 9: página atual guardada no estado
+  int _pagina = 1;
 
   @override
   void initState() {
@@ -22,19 +33,21 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
     _futuro = buscarPersonagens(); // pede os dados UMA vez, ao abrir a tela
   }
 
-  Future<List<Personagem>> buscarPersonagens() async {
+  Future<PaginaPersonagens> buscarPersonagens() async {
     // Exercício 8: só acrescenta &status=... quando há um filtro escolhido
     final parteStatus = _filtro.isEmpty ? '' : '&status=$_filtro';
     final resposta = await http.get(Uri.parse(
-      'https://rickandmortyapi.com/api/character?page=1$parteStatus'));
+      'https://rickandmortyapi.com/api/character?page=$_pagina$parteStatus'));
     if (resposta.statusCode != 200) {
       throw Exception('Falha na consulta: ${resposta.statusCode}');
     }
     final dados = jsonDecode(resposta.body) as Map<String, dynamic>;
-    final lista = dados['results'] as List<dynamic>;
-    return lista
+    final lista = (dados['results'] as List<dynamic>)
         .map((item) => Personagem.fromMap(item as Map<String, dynamic>))
         .toList();
+    // Exercício 9: info.pages diz quantas páginas existem no total
+    final totalPaginas = dados['info']['pages'] as int;
+    return PaginaPersonagens(lista: lista, totalPaginas: totalPaginas);
   }
 
   void _recarregar() {
@@ -45,6 +58,15 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
   void _trocarFiltro(String novoFiltro) {
     setState(() {
       _filtro = novoFiltro;
+      _pagina = 1; // Exercício 9: ao trocar o filtro, volta para a página 1
+      _futuro = buscarPersonagens();
+    });
+  }
+
+  // Exercício 9: muda de página mantendo o filtro atual
+  void _irParaPagina(int novaPagina) {
+    setState(() {
+      _pagina = novaPagina;
       _futuro = buscarPersonagens();
     });
   }
@@ -70,7 +92,7 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
             _opcaoFiltro('Mortos', 'dead'),
           ]),
         ),
-        Expanded(child: FutureBuilder<List<Personagem>>(
+        Expanded(child: FutureBuilder<PaginaPersonagens>(
         future: _futuro,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -86,8 +108,11 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
               ]),
             );
           }
-          final personagens = snapshot.data!;
-          return ListView.builder(
+          final pagina = snapshot.data!;
+          final personagens = pagina.lista;
+          // Exercício 9: lista + barra de páginas embaixo
+          return Column(children: [
+            Expanded(child: ListView.builder(
             padding: const EdgeInsets.all(8),
             itemCount: personagens.length,
             itemBuilder: (context, i) {
@@ -105,7 +130,26 @@ class _TelaPersonagensState extends State<TelaPersonagens> {
                 ),
               );
             },
-          );
+          )),
+            // Exercício 9: botões Anterior/Próxima e "Página X de Y"
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    // desabilitado na primeira página
+                    onPressed: _pagina > 1
+                        ? () => _irParaPagina(_pagina - 1) : null,
+                    child: const Text('Anterior')),
+                  Text('Página $_pagina de ${pagina.totalPaginas}'),
+                  ElevatedButton(
+                    // desabilitado na última página
+                    onPressed: _pagina < pagina.totalPaginas
+                        ? () => _irParaPagina(_pagina + 1) : null,
+                    child: const Text('Próxima')),
+                ]),
+            ),
+          ]);
         },
       )),
       ]),
