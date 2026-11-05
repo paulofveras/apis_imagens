@@ -44,6 +44,15 @@ class TelaDetalhePersonagem extends StatelessWidget {
             leading: const Icon(Icons.public),
             title: const Text('Origem'),
             subtitle: Text(personagem.origem)),
+          // Exercício 7: gênero e localização no detalhe
+          ListTile(
+            leading: const Icon(Icons.wc),
+            title: const Text('Gênero'),
+            subtitle: Text(personagem.genero)),
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: const Text('Localização'),
+            subtitle: Text(personagem.localizacao)),
           ListTile(
             leading: const Icon(Icons.tag),
             title: const Text('ID'),
