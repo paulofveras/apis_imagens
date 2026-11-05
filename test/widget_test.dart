@@ -8,5 +8,6 @@ void main() {
 
     expect(find.text('Galeria de cães'), findsOneWidget);
     expect(find.text('Pokédex'), findsOneWidget);
+    expect(find.text('Personagens'), findsOneWidget);
   });
 }

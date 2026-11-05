@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'telas/tela_caes.dart';
 import 'telas/tela_pokemon.dart';
+import 'telas/tela_personagens.dart';
 
 void main() => runApp(const MeuApp());
 
@@ -22,6 +23,10 @@ class MeuApp extends StatelessWidget {
             onPressed: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const TelaPokemon())),
             child: const Text('Pokédex')),
+          ElevatedButton(
+            onPressed: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const TelaPersonagens())),
+            child: const Text('Personagens')),
         ]),
       )),
     ),
