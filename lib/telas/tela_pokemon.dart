@@ -59,13 +59,24 @@ class _TelaPokemonState extends State<TelaPokemon> {
           if (erro != null) Text(erro!),
           if (pokemon != null) ...[
             const SizedBox(height: 16),
-            Text('${pokemon!['name']}',
-              style: const TextStyle(fontSize: 25)),
-            if (sprite != null) Image.network(sprite,
-              width: 180, height: 180, fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => const Text('Sem imagem')),
-            Text('Altura: ${pokemon!['height']} décimos de metro'),
-            Text('Peso: ${pokemon!['weight']} décimos de kg'),
+            // Exercício 4: todo o resultado dentro de um Card
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(children: [
+                  // Exercício 4: mostra o ID do Pokémon (ex.: #25)
+                  Text('#${pokemon!['id']}',
+                    style: const TextStyle(fontSize: 18, color: Colors.grey)),
+                  Text('${pokemon!['name']}',
+                    style: const TextStyle(fontSize: 25)),
+                  if (sprite != null) Image.network(sprite,
+                    width: 180, height: 180, fit: BoxFit.contain,
+                    errorBuilder: (_, _, _) => const Text('Sem imagem')),
+                  Text('Altura: ${pokemon!['height']} décimos de metro'),
+                  Text('Peso: ${pokemon!['weight']} décimos de kg'),
+                ]),
+              ),
+            ),
           ],
         ]),
       ),
