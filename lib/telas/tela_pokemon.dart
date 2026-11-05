@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math'; // Exercício 5: para sortear o número
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -38,6 +39,13 @@ class _TelaPokemonState extends State<TelaPokemon> {
     }
   }
 
+  // Exercício 5: sorteia um número de 1 a 151, põe no campo e busca
+  void sortearPokemon() {
+    final numero = Random().nextInt(151) + 1;
+    controle.text = '$numero';
+    buscarPokemon();
+  }
+
   @override
   void dispose() { controle.dispose(); super.dispose(); }
 
@@ -55,6 +63,9 @@ class _TelaPokemonState extends State<TelaPokemon> {
           const SizedBox(height: 12),
           ElevatedButton(onPressed: carregando ? null : buscarPokemon,
             child: const Text('Buscar')),
+          // Exercício 5: botão de Pokémon aleatório
+          ElevatedButton(onPressed: carregando ? null : sortearPokemon,
+            child: const Text('Pokémon aleatório')),
           if (carregando) const CircularProgressIndicator(),
           if (erro != null) Text(erro!),
           if (pokemon != null) ...[
