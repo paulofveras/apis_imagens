@@ -52,6 +52,8 @@ class _TelaPokemonState extends State<TelaPokemon> {
   @override
   Widget build(BuildContext context) {
     final sprite = pokemon?['sprites']?['front_default'];
+    // Exercício 6: 'types' é uma lista; cada item tem ['type']['name']
+    final tipos = (pokemon?['types'] as List<dynamic>?) ?? [];
     return Scaffold(
       appBar: AppBar(title: const Text('Pokédex')),
       body: SingleChildScrollView(
@@ -85,6 +87,14 @@ class _TelaPokemonState extends State<TelaPokemon> {
                     errorBuilder: (_, _, _) => const Text('Sem imagem')),
                   Text('Altura: ${pokemon!['height']} décimos de metro'),
                   Text('Peso: ${pokemon!['weight']} décimos de kg'),
+                  const SizedBox(height: 8),
+                  // Exercício 6: tipos como Chip dentro de um Wrap
+                  Wrap(
+                    spacing: 8,
+                    children: tipos
+                        .map((t) => Chip(label: Text('${t['type']['name']}')))
+                        .toList(),
+                  ),
                 ]),
               ),
             ),
